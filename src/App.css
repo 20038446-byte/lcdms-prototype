@@ -1,0 +1,43 @@
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+}
+
+.dashboard-btn span {
+  display: block;
+  font-size: 14px;
+  margin-top: 8px;
+  font-weight: normal;
+}
+
+.staff-wide {
+  grid-column: span 2;
+}
+
+.details-card,
+.payment-card,
+.full-screen-card {
+  max-width: 700px;
+  margin: auto;
+  background: white;
+  padding: 28px;
+  border-radius: 18px;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+}
+
+.details-text {
+  background: #f3f4f6;
+  padding: 15px;
+  border-radius: 12px;
+}
+
+.two-inputs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+}
+
+.two-only {
+  grid-template-columns: repeat(2, 1fr);
+}
