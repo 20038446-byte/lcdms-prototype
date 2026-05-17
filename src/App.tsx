@@ -1,351 +1,244 @@
-# `src/main.tsx`
+import React, { useState } from "react";
+import "./App.css";
 
-```tsx
-import React from 'react'
-import ReactDOM from 'react-dom/client'
-import App from './App'
+export default function App() {
+  const [page, setPage] = useState("login");
+  const [popup, setPopup] = useState("");
+  const [search, setSearch] = useState("");
+  const [selectedProgram, setSelectedProgram] = useState(null);
+  const [payments, setPayments] = useState([
+    { program: "Sports and Fitness Camp", amount: "$20", method: "Visa Card", status: "Paid" },
+  ]);
 
-ReactDOM.createRoot(document.getElementById('root')!).render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>,
-)
-```
+  const showPopup = (message) => {
+    setPopup(message);
+    setTimeout(() => setPopup(""), 2500);
+  };
 
----
+  const programs = [
+    { title: "Youth Coding Workshop", date: "20 June 2026", place: "Community Hall", age: "15–25", category: "Education", capacity: 12, fee: "$15", details: "This program teaches basic coding, computer use, and problem solving for young community members." },
+    { title: "Health Awareness Program", date: "25 June 2026", place: "Council Centre", age: "All ages", category: "Health", capacity: 30, fee: "$10", details: "This session provides health education, wellbeing advice, safety awareness, and local support information." },
+    { title: "Sports and Fitness Camp", date: "30 June 2026", place: "Local Park", age: "12–20", category: "Sports", capacity: 18, fee: "$20", details: "This camp includes outdoor fitness, teamwork activities, warm-up sessions, and healthy lifestyle guidance." },
+  ];
 
-# `src/App.tsx`
+  const filteredPrograms = programs.filter((p) =>
+    p.title.toLowerCase().includes(search.toLowerCase()) ||
+    p.category.toLowerCase().includes(search.toLowerCase()) ||
+    p.place.toLowerCase().includes(search.toLowerCase())
+  );
 
-````tsx
-function App() {
+  const enrolments = [
+    { name: "Youth Coding Workshop", status: "Active", attendance: "3/4 sessions attended" },
+    { name: "Clean Community Event", status: "Completed", attendance: "Present" },
+    { name: "Health Awareness Program", status: "Pending", attendance: "Not started" },
+  ];
+
+  const startPayment = (program) => {
+    setSelectedProgram(program);
+    setPage("paymentForm");
+  };
+
+  const completePayment = () => {
+    setPayments([
+      ...payments,
+      { program: selectedProgram.title, amount: selectedProgram.fee, method: "Card Payment", status: "Paid" },
+    ]);
+    showPopup("Enrolled and payment successful");
+    setPage("payments");
+  };
+
   return (
     <div className="app">
-      <header className="header" id="home">
-        <h1>LCDMS</h1>
-        <p>Local Community Development Management System</p>
+      {popup && <div className="popup">✅ {popup}</div>}
+
+      <header className="topbar">
+        <div>
+          <h1>LCDMS Prototype</h1>
+          <p>Local Community Development Management System</p>
+        </div>
+        {page !== "login" && <button className="btn dark" onClick={() => setPage("login")}>Logout</button>}
       </header>
 
-      <nav className="navbar">
-        <a href="#home">Home</a>
-        <a href="#programs">Programs</a>
-        <a href="#residents">Residents</a>
-        <a href="#projects">Projects</a>
-        <a href="#reports">Reports</a>
-        <a href="#contact">Contact</a>
-      </nav>
+      {page === "login" && (
+        <main className="login-page">
+          <section className="login-card">
+            <h2>Community Member Portal</h2>
+            <p className="muted">Login or register to access community programs.</p>
+            <label>Email</label>
+            <input type="email" placeholder="member@email.com" />
+            <label>Password</label>
+            <input type="password" placeholder="Enter password" />
+            <button className="btn primary full" onClick={() => setPage("dashboard")}>Register as Member</button>
+          </section>
+        </main>
+      )}
 
-      <section className="hero">
-        <h2>Welcome to LCDMS</h2>
-        <p>
-          LCDMS is a digital platform designed to help local councils manage
-          community programs, residents, public welfare services, and development
-          projects in one system.
-        </p>
-      </section>
+      {page === "dashboard" && (
+        <main>
+          <section className="hero managed-hero">
+            <h2>Welcome to LCDMS Dashboard</h2>
+            <p>This prototype keeps all community services organised in one simple digital platform.</p>
+          </section>
 
-      <section className="section" id="programs">
-        <h2>Community Programs</h2>
-        <div className="cards">
-          <div className="card">
-            <h3>Health Awareness</h3>
-            <p>Organise health camps, awareness sessions, and public support programs.</p>
-          </div>
-          <div className="card">
-            <h3>Skill Training</h3>
-            <p>Manage training programs for youth, women, and unemployed residents.</p>
-          </div>
-          <div className="card">
-            <h3>Community Events</h3>
-            <p>Plan and monitor local events, meetings, and public activities.</p>
-          </div>
-        </div>
-      </section>
+          <section className="dashboard-grid">
+            <button className="dashboard-btn" onClick={() => setPage("browse")}>🔍 Browse Programs<span>Search and enrol in community programs</span></button>
+            <button className="dashboard-btn" onClick={() => setPage("enrolments")}>📋 My Enrolments<span>View active and past enrolments</span></button>
+            <button className="dashboard-btn" onClick={() => setPage("payments")}>💳 Payments<span>Check payment history</span></button>
+            <button className="dashboard-btn" onClick={() => setPage("notifications")}>🔔 Notifications<span>See latest updates</span></button>
+            <button className="dashboard-btn staff-wide" onClick={() => setPage("staffMenu")}>🧾 Staff Interface<span>Open session view and activity log</span></button>
+          </section>
+        </main>
+      )}
 
-      <section className="section" id="residents">
-        <h2>Resident Management</h2>
-        <p>
-          Council staff can register residents, update contact details, check eligibility
-          for welfare programs, and manage community records easily.
-        </p>
-        <table>
-          <thead>
-            <tr>
-              <th>Resident ID</th>
-              <th>Name</th>
-              <th>Program</th>
-              <th>Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>R001</td>
-              <td>John Smith</td>
-              <td>Health Support</td>
-              <td>Approved</td>
-            </tr>
-            <tr>
-              <td>R002</td>
-              <td>Maria Lee</td>
-              <td>Skill Training</td>
-              <td>Pending</td>
-            </tr>
-          </tbody>
-        </table>
-      </section>
+      {page === "browse" && (
+        <main>
+          <button className="btn back" onClick={() => setPage("dashboard")}>← Back to Dashboard</button>
+          <h2>Browse Programs</h2>
+          <section className="search-box">
+            <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search program by name, category or location..." />
+            <button className="btn primary" onClick={() => showPopup("Search completed")}>Search</button>
+          </section>
+          <section className="filters">
+            <input placeholder="Category" />
+            <input type="date" />
+            <input placeholder="Location" />
+            <input placeholder="Age group" />
+          </section>
+          <section className="grid three">
+            {filteredPrograms.map((p) => (
+              <article className="program-card" key={p.title}>
+                <span className="badge">{p.category}</span>
+                <h3>{p.title}</h3>
+                <p><b>Date:</b> {p.date}</p>
+                <p><b>Location:</b> {p.place}</p>
+                <p><b>Age group:</b> {p.age}</p>
+                <p><b>Capacity left:</b> {p.capacity}</p>
+                <p><b>Fee:</b> {p.fee}</p>
+                <div className="actions">
+                  <button className="btn secondary" onClick={() => { setSelectedProgram(p); setPage("programDetails"); }}>View Details</button>
+                  <button className="btn primary" onClick={() => startPayment(p)}>Enrol</button>
+                </div>
+              </article>
+            ))}
+          </section>
+        </main>
+      )}
 
-      <section className="section" id="projects">
-        <h2>Development Projects</h2>
-        <div className="cards">
-          <div className="card">
-            <h3>Road Maintenance</h3>
-            <p>Track road repair and infrastructure improvement projects.</p>
-          </div>
-          <div className="card">
-            <h3>Park Upgrade</h3>
-            <p>Monitor community park cleaning, lighting, and facility updates.</p>
-          </div>
-          <div className="card">
-            <h3>Waste Management</h3>
-            <p>M# `src/App.css`
+      {page === "programDetails" && selectedProgram && (
+        <main>
+          <button className="btn back" onClick={() => setPage("browse")}>← Back to Browse Programs</button>
+          <section className="details-card">
+            <h2>{selectedProgram.title}</h2>
+            <p className="muted">Program Details</p>
+            <div className="info-row"><span>Category</span><b>{selectedProgram.category}</b></div>
+            <div className="info-row"><span>Date</span><b>{selectedProgram.date}</b></div>
+            <div className="info-row"><span>Location</span><b>{selectedProgram.place}</b></div>
+            <div className="info-row"><span>Age Group</span><b>{selectedProgram.age}</b></div>
+            <div className="info-row"><span>Capacity Left</span><b>{selectedProgram.capacity}</b></div>
+            <div className="info-row"><span>Fee</span><b>{selectedProgram.fee}</b></div>
+            <p className="details-text">{selectedProgram.details}</p>
+            <button className="btn primary full" onClick={() => startPayment(selectedProgram)}>Enrol Now</button>
+          </section>
+        </main>
+      )}
 
-```css
-body {
-  margin: 0;
-  padding: 0;
-  font-family: Arial, sans-serif;
-  background-color: #f4f6f9;
-  color: #1f2937;
+      {page === "paymentForm" && selectedProgram && (
+        <main>
+          <button className="btn back" onClick={() => setPage("browse")}>← Back to Browse Programs</button>
+          <section className="payment-card">
+            <h2>Payment Method</h2>
+            <p>You are enrolling in <b>{selectedProgram.title}</b></p>
+            <p><b>Total fee:</b> {selectedProgram.fee}</p>
+            <label>Cardholder Name</label>
+            <input placeholder="Pranish Pandit" />
+            <label>Card Number</label>
+            <input placeholder="1234 5678 9012 3456" />
+            <div className="two-inputs">
+              <div><label>Expiry Date</label><input placeholder="MM/YY" /></div>
+              <div><label>CVV</label><input placeholder="123" /></div>
+            </div>
+            <button className="btn success full" onClick={completePayment}>Pay and Confirm Enrolment</button>
+          </section>
+        </main>
+      )}
+
+      {page === "enrolments" && (
+        <main>
+          <button className="btn back" onClick={() => setPage("dashboard")}>← Back to Dashboard</button>
+          <h2>My Enrolments</h2>
+          <section className="panel">
+            <table>
+              <thead><tr><th>Program</th><th>Status</th><th>Attendance Summary</th></tr></thead>
+              <tbody>{enrolments.map((e) => <tr key={e.name}><td>{e.name}</td><td>{e.status}</td><td>{e.attendance}</td></tr>)}</tbody>
+            </table>
+          </section>
+        </main>
+      )}
+
+      {page === "payments" && (
+        <main>
+          <button className="btn back" onClick={() => setPage("dashboard")}>← Back to Dashboard</button>
+          <section className="panel">
+            <h2>Payment History</h2>
+            <table>
+              <thead><tr><th>Program</th><th>Amount</th><th>Method</th><th>Status</th></tr></thead>
+              <tbody>{payments.map((p, index) => <tr key={index}><td>{p.program}</td><td>{p.amount}</td><td>{p.method}</td><td>{p.status}</td></tr>)}</tbody>
+            </table>
+          </section>
+        </main>
+      )}
+
+      {page === "notifications" && (
+        <main>
+          <button className="btn back" onClick={() => setPage("dashboard")}>← Back to Dashboard</button>
+          <section className="panel"><h2>Notifications</h2><div className="notice">New workshop has been added this week.</div><div className="notice">Your Health Awareness Program enrolment is pending.</div><div className="notice">Sports Camp starts on 30 June 2026.</div></section>
+        </main>
+      )}
+
+      {page === "staffMenu" && (
+        <main>
+          <button className="btn back" onClick={() => setPage("dashboard")}>← Back to Dashboard</button>
+          <h2>Staff Interface</h2>
+          <section className="dashboard-grid two-only">
+            <button className="dashboard-btn" onClick={() => setPage("sessionView")}>📌 Program Session View<span>View program session and mark attendance</span></button>
+            <button className="dashboard-btn" onClick={() => setPage("activityLog")}>📝 Activity Log Screen<span>Record activities and upload supporting info</span></button>
+          </section>
+        </main>
+      )}
+
+      {page === "sessionView" && (
+        <main>
+          <button className="btn back" onClick={() => setPage("staffMenu")}>← Back to Staff Interface</button>
+          <section className="session-card full-screen-card">
+            <h2>Program Session View</h2>
+            <p className="muted">This screen is used to check program details and mark member attendance.</p>
+            <div className="info-row"><span>Program</span><b>Youth Coding Workshop</b></div>
+            <div className="info-row"><span>Date</span><b>20 June 2026</b></div>
+            <div className="info-row"><span>Enrolled Members</span><b>3 Members</b></div>
+            <label className="check"><input type="checkbox" defaultChecked /> Pranish Pandit — Present</label>
+            <label className="check"><input type="checkbox" defaultChecked /> Sam Lee — Present</label>
+            <label className="check"><input type="checkbox" /> Alex Brown — Absent</label>
+            <button className="btn success full" onClick={() => showPopup("Attendance saved successfully")}>Save Attendance</button>
+          </section>
+        </main>
+      )}
+
+      {page === "activityLog" && (
+        <main>
+          <button className="btn back" onClick={() => setPage("staffMenu")}>← Back to Staff Interface</button>
+          <section className="activity-card full-screen-card">
+            <h2>Activity Log Screen</h2>
+            <p className="muted">Staff can record daily activity details and upload event proof.</p>
+            <input type="date" />
+            <input placeholder="Program name" />
+            <textarea placeholder="Description of activities" rows="3"></textarea>
+            <input placeholder="Number of attendees" />
+            <textarea placeholder="Notes" rows="3"></textarea>
+            <input type="file" />
+            <button className="btn success full" onClick={() => showPopup("Report submitted successfully")}>Submit Report</button>
+          </section>
+        </main>
+      )}
+    </div>
+  );
 }
-
-html {
-  scroll-behavior: smooth;
-}
-
-.header {
-  background-color: #1e3a8a;
-  color: white;
-  text-align: center;
-  padding: 35px 20px;
-}
-
-.header h1 {
-  margin: 0;
-  font-size: 42px;
-}
-
-.navbar {
-  background-color: #2563eb;
-  padding: 15px;
-  display: flex;
-  justify-content: center;
-  gap: 12px;
-  flex-wrap: wrap;
-  position: sticky;
-  top: 0;
-}
-
-.navbar a {
-  background-color: white;
-  color: #1e3a8a;
-  text-decoration: none;
-  padding: 10px 16px;
-  border-radius: 6px;
-  font-weight: bold;
-}
-
-.navbar a:hover {
-  background-color: #dbeafe;
-}
-
-.hero {
-  text-align: center;
-  padding: 50px 25px;
-  background-color: white;
-}
-
-.hero p {
-  max-width: 750px;
-  margin: auto;
-  line-height: 1.6;
-}
-
-.section {
-  padding: 40px 25px;
-  max-width: 1100px;
-  margin: auto;
-}
-
-.section h2 {
-  color: #1e3a8a;
-  margin-bottom: 20px;
-}
-
-.cards {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: 20px;
-}
-
-.card {
-  background-color: white;
-  padding: 22px;
-  border-radius: 10px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-}
-
-.card h3 {
-  color: #2563eb;
-}
-
-table {
-  width: 100%;
-  border-collapse: collapse;
-  background-color: white;
-  margin-top: 20px;
-}
-
-th,
-td {
-  border: 1px solid #d1d5db;
-  padding: 12px;
-  text-align: left;
-}
-
-th {
-  background-color: #1e3a8a;
-  color: white;
-}
-
-.contact-form {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  max-width: 500px;
-}
-
-.contact-form input,
-.contact-form textarea {
-  padding: 12px;
-  border: 1px solid #cbd5e1;
-  border-radius: 6px;
-}
-
-.contact-form textarea {
-  height: 100px;
-}
-
-button {
-  background-color: #1e3a8a;
-  color: white;
-  border: none;
-  padding: 12px;
-  border-radius: 6px;
-  cursor: pointer;
-  font-weight: bold;
-}
-
-button:hover {
-  background-color: #2563eb;
-}
-
-.footer {
-  background-color: #1e3a8a;
-  color: white;
-  text-align: center;
-  padding: 18px;
-  margin-top: 30px;
-}
-````
-
----
-
-# Updated `src/maon, budget use, and project completion status.
-
-```
-    </p>
-    <ul>
-      <li>Monthly program report</li>
-      <li>Resident participation report</li>
-      <li>Project progress report</li>
-      <li>Welfare support summary</li>
-    </ul>
-  </section>
-
-  <section className="section" id="contact">
-    <h2>Contact Council Office</h2>
-    <form className="contact-form">
-      <input type="text" placeholder="Your Name" />
-      <input type="email" placeholder="Email Address" />
-      <textarea placeholder="Write your message"></textarea>
-      <button type="button">Submit Request</button>
-    </form>
-  </section>
-
-  <footer className="footer">
-    <p>© 2026 LCDMS Prototype | ICT103 System Analysis and Design</p>
-  </footer>
-</div>
-```
-
-)
-}
-
-export default App
-
-````
-
----
-
-# `src/App.css`
-
-```css
-body {
-  margin: 0;
-  padding: 0;
-  background-color: #f4f6f9;
-}
-
-button {
-  background-color: white;
-  color: #1e3a8a;
-  border: none;
-  padding: 10px 15px;
-  border-radius: 5px;
-  cursor: pointer;
-  font-weight: bold;
-}
-
-button:hover {
-  background-color: #dbeafe;
-}
-````
-
----
-
-# Updated `src/main.tsx`
-
-```tsx
-import React from 'react'
-import ReactDOM from 'react-dom/client'
-import App from './App'
-import './App.css'
-
-ReactDOM.createRoot(document.getElementById('root')!).render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>,
-)
-```
-
----
-
-# What to Do
-
-1. Open GitHub repository
-2. Open `src/main.tsx`
-3. Replace everything with the `main.tsx` code above
-4. Open `src/App.tsx`
-5. Replace everything with the `App.tsx` code above
-6. Click `Commit changes`
-7. Wait 1 minute
-8. Refresh your Vercel website
